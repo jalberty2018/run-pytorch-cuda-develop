@@ -45,7 +45,7 @@ docker pull ls250824/run-pytorch-cuda-develop:<version>
 ### Add directory to encrypted archive
 
 ```bash
-7z a -p -mhe=on output.7z /workspace/
+7z a output.7z /workspace/output/
 ```
 
 ### Extract directory from archive
