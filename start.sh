@@ -25,7 +25,7 @@ fi
 mkdir -p /workspace/output/
 
 # Move necessary files to workspace
-for script in readme-on-workspace.sh; do
+for script in readme-on-workspace.sh build-on-workspace.sh; do
     if [ -f "/$script" ]; then
         echo "Executing $script..."
         "/$script"
