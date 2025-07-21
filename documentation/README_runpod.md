@@ -6,6 +6,7 @@
 
 - [Code Server](https://github.com/coder/code-server)
 - [Jupyterlab](https://jupyter.org)
+- [Jupyter Server](https://jupyter-server.readthedocs.io/en/latest/index.html)
 - [HuggingFace cli](https://huggingface.co/docs/huggingface_hub/guides/cli)
 
 ## Setup

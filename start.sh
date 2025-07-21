@@ -64,6 +64,7 @@ print(passwd(os.environ['JUPYTERLAB_PASS']))
     sed -i '/^c.ServerApp.password/d' "$CONFIG_PATH" 2>/dev/null || true
 
     # Append the new hashed password
+	# echo "c.PasswordIdentityProvider.hashed_password = u'$HASHED_PASSWORD'" >> "$CONFIG_PATH"
     echo "c.ServerApp.password = u'$HASHED_PASSWORD'" >> "$CONFIG_PATH"
     echo "✅ Jupyter Server password set in $CONFIG_PATH"
 
