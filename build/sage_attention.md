@@ -21,19 +21,13 @@ rm -rf build/ dist/ *.egg-info
 ## Build wheel
 
 ```bash
-python setup.py bdist_wheel
-```
-
-## Build & install wheel
-
-```bash
-python setup.py install  # or pip install -e .
+MAX_JOBS=16 python -m build --wheel --no-isolation
 ```
 
 ## Install & Check
 
 ```bash
-pip install dist/sageattention-2.2.0-cp311-cp311-linux_x86_64.whl
+pip install dist/sageattention-2.x.x-cp311-cp311-linux_x86_64.whl
 python test_sage.py
 ```
 
