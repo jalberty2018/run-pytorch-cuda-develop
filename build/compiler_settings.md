@@ -29,16 +29,17 @@ You can adjust MAX_JOBS if you hit out-of-memory during compile.
 ## Fast compilation for L40S
 
 ### Ada Lovelace (L40S) compute capability
+
+```bash
 export TORCH_CUDA_ARCH_LIST="8.9"
+```
 
 ### optional speed-ups
+
+```bash
 export USE_NINJA=1
 export MAX_JOBS=$(nproc)
-
-### big win if you have it installed
-export CXX="ccache g++"          # or just g++ if ccache not installed
-export CCACHE_DIR=/workspace/.ccache
-export CCACHE_MAXSIZE=10G
+```
 
 ## Common prerequisites
 

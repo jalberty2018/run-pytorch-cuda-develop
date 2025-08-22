@@ -20,7 +20,7 @@ COPY --chmod=755 start.sh onworkspace/readme-on-workspace.sh onworkspace/build-o
 RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Development tools & Hugginface-cli & jupyterlab
-RUN pip3 install --no-cache-dir -U "huggingface_hub[cli]" triton setuptools wheel build pytest jupyterlab gradio scikit-build-core ccache
+RUN pip3 install --no-cache-dir -U "huggingface_hub[cli]" triton setuptools wheel build pytest jupyterlab gradio scikit-build-core
 
 # Workspace
 WORKDIR /workspace
