@@ -15,7 +15,7 @@ fi
 
 # Login to Hugging Face if token is provided
 if [[ -n "$HF_TOKEN" ]]; then
-    huggingface-cli login --token "$HF_TOKEN"
+    hf auth login --token "$HF_TOKEN"
 	sleep 1
 else
 	echo "⚠️ WARNING: HF_TOKEN is not set as an environment variable"
@@ -66,7 +66,7 @@ print(passwd(os.environ['JUPYTERLAB_PASS']))
     # Append the new hashed password
 	# echo "c.PasswordIdentityProvider.hashed_password = u'$HASHED_PASSWORD'" >> "$CONFIG_PATH"
     echo "c.ServerApp.password = u'$HASHED_PASSWORD'" >> "$CONFIG_PATH"
-    echo "✅ Jupyter Server password set in $CONFIG_PATH"
+    echo "[INFO] Jupyter Server password set in $CONFIG_PATH"
 
     # Start JupyterLab
     jupyter lab \
@@ -84,7 +84,7 @@ else
 fi
 	
 # Final message
-echo "✅ [INFO] Ready, end script"
+echo "✅ Ready, end script"
 
 # Keep the container running
 exec sleep infinity

@@ -15,9 +15,10 @@
 |-----------|---------------------|
 | OS        | Ubuntu 22.04 x86_64 |
 | Python    | 3.11.x              |
-| PyTorch   | 2.7.1               |
-| NVCC      | 12.8                |
+| PyTorch   | 2.8.0               |
+| NVCC      | 12.9                |
 | Triton    | 3.x                 |
+
 
 ## Connection options 
 
@@ -78,4 +79,6 @@ c++
 nvcc
 python
 pip
+ncdu
+unzip
 ```

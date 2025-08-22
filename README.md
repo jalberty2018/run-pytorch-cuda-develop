@@ -2,6 +2,18 @@
 
 # run-pytorch-cuda-develop
 
+## Synopsis
+
+A streamlined setup for developing on high-performance hardware.  
+
+- Authentication credentials set via secrets for:  
+  - **Code server** authentication
+  - **Jupyterlab** authentication
+  - **Hugging Face** and **CivitAI** tokens for model access (mandatory).  
+
+Ensure that the required environment variables and secrets are correctly set before running the pod.
+See below for options.
+
 ## Hardware provisioning
 
 - [Runpod.io](https://runpod.io/)
@@ -22,8 +34,8 @@
 |-----------|---------------------|
 | OS        | Ubuntu 22.04 x86_64 |
 | Python    | 3.11.x              |
-| PyTorch   | 2.7.1               |
-| NVCC      | 12.8                |
+| PyTorch   | 2.8.0               |
+| NVCC      | 12.9                |
 | Triton    | 3.x                 |
 
 ## Available Images
@@ -99,6 +111,8 @@ c++
 nvcc
 python
 pip
+ncdu
+unzip
 ```
 
 ## Building the Docker Image 
