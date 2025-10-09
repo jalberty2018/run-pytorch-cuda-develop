@@ -21,11 +21,12 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Update Development tools, 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python -m pip install pip setuptools wheel build
+    python -m pip install --root-user-action ignore --no-cache-dir \
+	pip setuptools wheel build
 
 # Install jupyterlab, gradio, hf
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python -m pip install --no-cache-dir \
+    python -m pip install --root-user-action ignore --no-cache-dir \
     jupyterlab gradio "huggingface_hub[cli]"
 
 # Workspace
