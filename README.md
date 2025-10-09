@@ -27,16 +27,20 @@ See below for options.
 - [Jupyterlab](https://jupyter.org)
 - [Jupyter Server](https://jupyter-server.readthedocs.io/en/latest/index.html)
 - [HuggingFace cli](https://huggingface.co/docs/huggingface_hub/guides/cli)
+- [Nvidia CUDA](https://hub.docker.com/r/nvidia/cuda/tags?name=12)
+- [Pytorch.org](https://pytorch.org)
+- [Triton](https://triton-lang.org/main/index.html)
 
 ## Setup
 
-| Component | Version             |
-|-----------|---------------------|
-| OS        | Ubuntu 22.04 x86_64 |
-| Python    | 3.11.x              |
-| PyTorch   | 2.8.0               |
-| NVCC      | 12.9                |
-| Triton    | 3.x                 |
+| Component | Version              |
+|-----------|----------------------|
+| OS        | `Ubuntu 22.04 x86_64` |
+| Python    | `3.11.x`             |
+| PyTorch   | `2.8.0`              |
+| CUDA      | `12.9.1`             |
+| Triton    | `2.4.x`               |
+| nvcc      | `12.9.x`            |
 
 ## Available Images
 
@@ -52,7 +56,7 @@ See below for options.
 docker pull ls250824/run-pytorch-cuda-develop:<version>
 ```
 
-## Connection options 
+## Settings
 
 ### Services
 
@@ -72,48 +76,11 @@ docker pull ls250824/run-pytorch-cuda-develop:<version>
 | Code Server  | `PASSWORD`           |
 | Jupyterlab   | `JUPYTERLAB_PASS`    |
 
-## 7z
+### Sources
 
-### Add directory to encrypted archive
-
-```bash
-7z a output.7z /workspace/output/
-```
-
-### Extract directory from archive
-
-```bash
-7z x x.7z
-```
-
-## CivitAI
-
-```bash
-civitai "<dowload link>" /workspace
-```
-
-## Huggingface  
-
-```bash
-huggingface-cli download model model_name.safetensors --local-dir /workspace
-huggingface-cli upload model /workspace/model.safetensors
-```
-
-## Apps
-
-```bash
-nvtop
-htop
-mc
-nano
-tmux
-c++
-nvcc
-python
-pip
-ncdu
-unzip
-```
+| Variable         | Description                      |
+|------------------|----------------------------------|
+| `SOURCE[1-50]` | source download links (compressed or plain) |
 
 ## Building the Docker Image 
 
@@ -133,7 +100,10 @@ Run the following command to clone the repository and build the image:
 git clone https://github.com/jalberty2018/run-pytorch-cuda-develop.git
 cp run-pytorch-cuda-develop/build-docker.py ..
 
-python3 build-docker.py \
+export DOCKER_BUILDKIT=1
+export COMPOSE_DOCKER_CLI_BUILD=1
+
+python build-docker.py \
 --username=<your_dockerhub_username> \
 --tag=<custom_tag> \ 
 run-pytorch-cuda-develop

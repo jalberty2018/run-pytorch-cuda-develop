@@ -1,5 +1,3 @@
-[![Docker Image Version](https://img.shields.io/docker/v/ls250824/run-pytorch-cuda-develop)](https://hub.docker.com/r/ls250824/run-pytorch-cuda-develop)
-
 # run-pytorch-cuda-develop
 
 ## Hardware provisioning
@@ -15,33 +13,22 @@
 - [Jupyterlab](https://jupyter.org)
 - [Jupyter Server](https://jupyter-server.readthedocs.io/en/latest/index.html)
 - [HuggingFace cli](https://huggingface.co/docs/huggingface_hub/guides/cli)
+- [Nvidia CUDA](https://hub.docker.com/r/nvidia/cuda/tags?name=12)
+- [Pytorch.org](https://pytorch.org)
+- [Triton](https://triton-lang.org/main/index.html)
 
 ## Setup
 
-| Component | Version             |
-|-----------|---------------------|
-| OS        | Ubuntu 22.04 x86_64 |
-| Python    | 3.11.x              |
-| PyTorch   | 2.8.0               |
-| NVCC      | 12.9                |
-| Triton    | 3.x                 |
+| Component | Version              |
+|-----------|----------------------|
+| OS        | `Ubuntu 22.04 x86_64` |
+| Python    | `3.11.x`             |
+| PyTorch   | `2.8.0`              |
+| CUDA      | `12.9.1`             |
+| Triton    | `2.4.x`               |
+| nvcc      | `12.9.x`            |
 
-
-## Available Images
-
-### Base Images 
-
-#### ls250824/pytorch-cuda-ubuntu-develop
-	
-[![Docker Image Version](https://img.shields.io/docker/v/ls250824/pytorch-cuda-ubuntu-develop)](https://hub.docker.com/r/ls250824/pytorch-cuda-ubuntu-develop)
-
-### Custom Build: 
-
-```bash
-docker pull ls250824/run-pytorch-cuda-develop:<version>
-```
-
-## Connection options 
+## Settings
 
 ### Services
 
@@ -60,3 +47,9 @@ docker pull ls250824/run-pytorch-cuda-develop:<version>
 | Huggingface  | `HF_TOKEN`           |
 | Code Server  | `PASSWORD`           |
 | Jupyterlab   | `JUPYTERLAB_PASS`    |
+
+### Sources
+
+| Variable         | Description                      |
+|------------------|----------------------------------|
+| `SOURCE[1-50]` | source download links (compressed or plain) |

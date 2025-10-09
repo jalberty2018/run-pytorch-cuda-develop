@@ -22,7 +22,6 @@ rm -rf build/ dist/ *.egg-info
 ```bash
 cd flashinfer
 python -m build --no-isolation --wheel
-ls -la dist/
 ```
 
 ## Build & install wheel
@@ -35,7 +34,7 @@ pip install --no-build-isolation --verbose .
 
 ```bash
 pip install dist/
-python test_flashinfer.py
+python /workspace/build/test_flashinfer.py
 ```
 
 - output = torch.Size([7, 64, 128])

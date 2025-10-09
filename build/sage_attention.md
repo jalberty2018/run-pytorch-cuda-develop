@@ -5,6 +5,14 @@
 
 - [Github](https://github.com/thu-ml/SageAttention)
 
+## A40, L40S
+
+```bash
+export TORCH_CUDA_ARCH_LIST="8.6;8.9"
+export CMAKE_BUILD_PARALLEL_LEVEL=16
+export USE_NINJA=1
+```
+
 ## Clone
 
 ```bash
@@ -27,7 +35,8 @@ MAX_JOBS=16 python -m build --wheel --no-isolation
 ## Install & Check
 
 ```bash
-pip install dist/sageattention-2.x.x-cp311-cp311-linux_x86_64.whl
+cd /workscpace/build
+pip install /workspace/SageAttention/dist/sageattention-2.*.whl
 python test_sage.py
 ```
 

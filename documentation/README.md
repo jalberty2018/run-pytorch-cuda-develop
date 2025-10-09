@@ -23,29 +23,51 @@
 | Triton    | `2.4.x`               |
 | nvcc      | `12.9.x`            |
 
+## 7z
 
-## Settings
+### Add directory to encrypted archive
 
-### Services
+```bash
+7z a output.7z /workspace/output/
+```
 
-| Service         | Port          |
-|-----------------|---------------| 
-| **Code Server** | `9000` (HTTP) |
-| **Jupyterlab**  | `8888` (HTTP) |
-| **SSH/SCP**     | `22`   (TCP)  |
-| **Gradio**      | `7860` (HTTP) |
+### Extract directory from archive
 
-### Authentication Tokens 
+```bash
+7z x x.7z
+```
 
-| Token        | Environment Variable |
-|--------------|----------------------|
-| Civitai      | `CIVITAI_TOKEN`      |
-| Huggingface  | `HF_TOKEN`           |
-| Code Server  | `PASSWORD`           |
-| Jupyterlab   | `JUPYTERLAB_PASS`    |
+#### **Huggingface**  
 
-### Sources
+```bash
+export HF_TOKEN="xxxxx"
+hf download model model_name.safetensors --local-dir /workspace/ComfyUI/models/diffusion_models/
+hf upload model /workspace/model.safetensors
+```
 
-| Variable         | Description                      |
-|------------------|----------------------------------|
-| `SOURCE[1-50]` | source download links (compressed or plain) |
+```bash
+hf auth login --token xxxxx
+```
+
+#### **CivitAI**  
+
+```bash
+export CIVITAI_TOKEN="xxxxx"
+civitai "<download link>" /workspace/ComfyUI/models/diffusion_models
+civitai "<download link>" /workspace/ComfyUI/models/loras
+```
+## Utilities  
+
+```bash
+nvtop
+htop
+mc
+nano
+tmux
+c++
+nvcc
+python
+pip
+ncdu
+unzip
+```

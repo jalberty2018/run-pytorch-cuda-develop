@@ -1,6 +1,13 @@
 
 # Build FlashAttention 3 Wheel (Hopper architecture)
 
+## H100, H200
+
+```bash
+export TORCH_CUDA_ARCH_LIST="9.0"
+export USE_NINJA=1
+```
+
 ## Clone
 
 ```bash
@@ -23,7 +30,8 @@ MAX_JOBS=4 python -m build --wheel --no-isolation
 ## Install & Check
 
 ```bash
-pip install dist/flashattn_hopper-3.x.x-cp311-cp311-linux_x86_64.whl
+cd /workspace/build
+pip install /workspace/flash-attention/hopper/dist/flashattn_hopper-3.*.whl
 python test_flash.py
 ```
 
