@@ -1,4 +1,4 @@
-# pytorch-cuda-ubuntu-develop
+# syntax=docker/dockerfile:1.7
 FROM ls250824/pytorch-cuda-ubuntu-develop:22082025 AS base
 
 # Workspace for installation
