@@ -26,12 +26,14 @@ export MAX_JOBS=$(nproc)
 
 ## Common prerequisites
 
-- [architecture](https://developer.nvidia.com/cuda-gpus)
+- [SM architecture](https://developer.nvidia.com/cuda-gpus)
+- [Wikipedia](https://en.wikipedia.org/wiki/CUDA)
 
 | Hardware | SM |
 |-------|------|
-| A40 / A100 | 8.6 / 8.0 |
-| L40 / L40S / 4090 | 8.9 |
+| A100 | 8.0 |
+| A40 / A5000 | 8.6 |
+| L40 / L40S / RTX 4090 / RTX 6000 Ada | 8.9 |
 | H100 / H200 / Grace Hopper | 9.0 |
 
 ### FOR A40,RTX A500,L40S
@@ -45,5 +47,6 @@ export TORCH_CUDA_ARCH_LIST="8.6;8.9"
 ```bash
 export TORCH_CUDA_ARCH_LIST="9.0"
 ```
+
 
 
