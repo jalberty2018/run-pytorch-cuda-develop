@@ -13,6 +13,12 @@ export CMAKE_BUILD_PARALLEL_LEVEL=16
 export USE_NINJA=1
 ```
 
+## Dependencies
+
+```bash
+pip install "packaging>=21,<24" "wheel>=0.38,<0.44" "setuptools>=62,<75"
+```
+
 ## Clone
 
 ```bash
@@ -35,7 +41,7 @@ MAX_JOBS=16 python -m build --wheel --no-isolation
 ## Install & Check
 
 ```bash
-cd /workscpace/build
+cd /workspace/build
 pip install /workspace/SageAttention/dist/sageattention-2.*.whl
 python test_sage.py
 ```

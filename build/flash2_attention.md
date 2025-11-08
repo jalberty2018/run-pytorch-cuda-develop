@@ -9,6 +9,7 @@
 ```bash
 export TORCH_CUDA_ARCH_LIST="8.6;8.9"
 export USE_NINJA=1
+export CUDAARCHS="86;89"
 ```
 
 ## Clone
@@ -24,10 +25,10 @@ cd flash-attention/
 rm -rf build/ dist/ *.egg-info
 ```
 
-## Build wheel
+## Build wheel (100 Gb RAM)
 
 ```bash
-MAX_JOBS=4 python -m build --wheel --no-isolation
+MAX_JOBS=8 python -m build --wheel --no-isolation
 ```
 
 ## Install & Check

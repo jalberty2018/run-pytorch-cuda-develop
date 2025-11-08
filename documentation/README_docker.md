@@ -17,16 +17,25 @@
 - [Pytorch.org](https://pytorch.org)
 - [Triton](https://triton-lang.org/main/index.html)
 
-## Setup latest image
+## Available Images
 
-| Component | Version              |
-|-----------|----------------------|
-| OS        | `Ubuntu 22.04 x86_64` |
-| Python    | `3.11.x`             |
-| PyTorch   | `2.9.0`              |
-| CUDA      | `13.0.x`             |
-| Triton    | `3.4.0`               |
-| nvcc      | `13.0.x`            |
+### Pytorch 2.8 CUDA 12.9
+
+```bash
+docker pull ls250824/run-pytorch-cuda-develop:09102025
+```
+
+### Pytorch 2.9 CUDA 13.0
+
+```bash
+docker pull ls250824/run-pytorch-cuda-develop:05112025
+```
+
+### Pytorch 2.9 CUDA 12.8
+
+```bash
+docker pull ls250824/run-pytorch-cuda-develop:08112025
+```
 
 ## Settings
 

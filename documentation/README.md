@@ -12,17 +12,6 @@
 - [Pytorch.org](https://pytorch.org)
 - [Triton](https://triton-lang.org/main/index.html)
 
-## Setup
-
-| Component | Version              |
-|-----------|----------------------|
-| OS        | `Ubuntu 22.04 x86_64` |
-| Python    | `3.11.x`             |
-| PyTorch   | `2.9.0`              |
-| CUDA      | `13.0.x`             |
-| Triton    | `3.4.0`               |
-| nvcc      | `13.0.x`            |
-
 ## 7z
 
 ### Add directory to encrypted archive

@@ -1,0 +1,6 @@
+packaging>=21,<24
+wheel>=0.38,<0.44
+setuptools>=62,<75
+build  
+pytest 
+ninja

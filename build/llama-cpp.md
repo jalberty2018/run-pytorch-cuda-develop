@@ -2,18 +2,17 @@
 
 - [Github](https://github.com/abetlen/llama-cpp-python)
 
-## Set your GPU CUDA archs to speed up the build & reduce wheel size
+## Compiler settings A40, L40S
 
-- 86 = RTX A5000 & A40
-- 89 = L40S
-- 90 = H100/H200
+```bash
+export CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=86;89"
+export CUDAARCHS="86;89"         
+export FORCE_CMAKE=1
+```
 
 ## Compile
 
 ```bash
-export CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=86;89"         
-export FORCE_CMAKE=1
-
 python -m pip wheel --no-cache-dir \
   --no-binary llama-cpp-python \
   --wheel-dir wheelhouse \
