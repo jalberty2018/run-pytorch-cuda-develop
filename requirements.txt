@@ -4,3 +4,7 @@ setuptools>=62,<75
 build  
 pytest 
 ninja
+psutil
+jupyterlab 
+gradio 
+huggingface_hub

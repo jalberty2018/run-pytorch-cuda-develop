@@ -5,10 +5,10 @@
 
 - [Github](https://github.com/thu-ml/SageAttention)
 
-## A40, L40S
+## RTX 30xx, A40, RTX 40xx, L40S, H100, Hopper, RTX 50xx, Blackwell
 
 ```bash
-export TORCH_CUDA_ARCH_LIST="8.6;8.9"
+export TORCH_CUDA_ARCH_LIST=“8.0;8.6;8.9;9.0;12.0”
 export CMAKE_BUILD_PARALLEL_LEVEL=16
 export USE_NINJA=1
 ```

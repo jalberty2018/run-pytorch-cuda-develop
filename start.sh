@@ -1,23 +1,29 @@
 #!/bin/bash
 
-echo "[INFO] run-pytorch-cuda-develop pod started"
+echo "ℹ️ run-pytorch-cuda-develop pod started"
+echo "ℹ️ Wait util 🎉 Ready to develop 🎉"
 
-if [[ $PUBLIC_KEY ]]
-then
-    mkdir -p ~/.ssh
-    chmod 700 ~/.ssh
-    cd ~/.ssh
-    echo $PUBLIC_KEY >> authorized_keys
-    chmod 700 -R ~/.ssh
-    cd /
+# Enable SSH if PUBLIC_KEY is set
+if [[ -n "$PUBLIC_KEY" ]]; then
+    mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    echo "$PUBLIC_KEY" >> ~/.ssh/authorized_keys
+    chmod 600 ~/.ssh/authorized_keys
     service ssh start
+    echo "✅ [SSH enabled]"
 fi
 
-# Create output directory for cloud transfer
-mkdir -p /workspace/output/
+# Export env variables
+if [[ -n "${RUNPOD_GPU_COUNT:-}" ]]; then
+   echo "ℹ️ Exporting runpod.io environment variables..."
+   printenv | grep -E '^RUNPOD_|^PATH=|^_=' \
+     | awk -F = '{ print "export " $1 "=\"" $2 "\"" }' >> /etc/rp_environment
+
+   echo 'source /etc/rp_environment' >> ~/.bashrc
+fi
 
 # Move necessary files to workspace
-for script in readme-on-workspace.sh build-on-workspace.sh; do
+echo "ℹ️ [Moving necessary files to workspace] enabling rebooting pod without data loss"
+for script in build-on-workspace.sh readme-on-workspace.sh; do
     if [ -f "/$script" ]; then
         echo "Executing $script..."
         "/$script"
@@ -25,6 +31,9 @@ for script in readme-on-workspace.sh build-on-workspace.sh; do
         echo "⚠️ WARNING: Skipping $script (not found)"
     fi
 done
+
+# Create output directory for cloud transfer
+mkdir -p /workspace/output/
 
 # GPU detection
 HAS_GPU=0
@@ -47,14 +56,13 @@ fi
 # Run services
 if [[ "$HAS_GPU" -eq 1 ]]; then
     if [[ -n "$PASSWORD" ]]; then
-    code-server /workspace --auth password --disable-telemetry --disable-update-check --host 0.0.0.0 --bind-addr 0.0.0.0:9000 &
+        code-server /workspace --auth password --disable-update-check --disable-telemetry --host 0.0.0.0 --bind-addr 0.0.0.0:9000 &
     else
-    echo "⚠️ WARNING: PASSWORD is not set as an environment variable - code-server not started"
+        echo "⚠️ PASSWORD is not set as an environment. password created in /root/.config/code-server/config.yaml"
+        code-server /workspace --disable-telemetry --disable-update-check --host 0.0.0.0 --bind-addr 0.0.0.0:9000 &
     fi
 	
 	sleep 5
-	
-	#!/bin/bash
 
 	if [[ -n "$JUPYTERLAB_PASS" ]]; then
     # Use Python to hash the password
@@ -158,7 +166,7 @@ for i in $(seq 1 50); do
 done
 	
 # Final message
-echo "✅ Ready, Let's develop with the following environment ;-)"
+echo "✅ Following environment"
 
 python - <<'PY'
 import torch, platform, triton, os
@@ -172,6 +180,64 @@ if torch.cuda.is_available():
     print(f"  ↳ cuDNN: {torch.backends.cudnn.version()}")
     print(f"Torch build info: {torch.__config__.show()}")
 PY
+
+if [[ "$HAS_GPU" -eq 1 ]]; then 
+    echo "🎉 Ready to develop 🎉"
+    
+    if [[ -z "${RUNPOD_POD_ID:-}" ]]; then
+	    echo "⚠️ RUNPOD_POD_ID not set — service URLs unavailable"
+	  else
+	    declare -A SERVICES=(
+	      ["Code-Server"]=9000
+	      ["Jupyter"]=8888
+	    )
+	
+	    # Local health checks (inside the pod)
+	    for service in "${!SERVICES[@]}"; do
+	      port="${SERVICES[$service]}"
+	      url="https://${RUNPOD_POD_ID}-${port}.proxy.runpod.net/"
+	      local_url="http://127.0.0.1:${port}/"
+	
+	      echo "👉 🔗 Service ${service} : ${url}"
+	
+	      # Check service locally (no proxy dependency)
+	      http_code="$(curl -sS -o /dev/null -m 2 --connect-timeout 1 -w "%{http_code}" "$local_url" || true)"
+	
+	      # Treat common “service is up but protected/redirect” codes as UP
+	      if [[ "$http_code" =~ ^(200|301|302|401|403|404)$ ]]; then
+	        echo "✅ ${service} is running (local ${local_url}, HTTP ${http_code})"
+	      else
+	        echo "❌ ${service} not responding yet (local ${local_url}, HTTP ${http_code})"
+	      fi
+	    done
+	  fi
+	fi
+	
+    if [[ -n "$PASSWORD" ]]; then
+		echo "ℹ️ Code-Server login use PASSWORD set as env"
+	else 
+		echo "⚠️ Code-Server password not provided via env (PASSWORD) use generated."
+		cat /root/.config/code-server/config.yaml        
+    fi	
+else
+    echo "ℹ️ Running error diagnosis"
+
+    if [[ "$HAS_GPU_RUNPOD" -eq 0 ]]; then
+        echo "⚠️ Pod started without a runpod GPU"
+    fi
+
+    if [[ "$HAS_CUDA" -eq 0 ]]; then
+        echo "❌ Pytorch CUDA driver error/mismatch/not available"
+        if [[ "$HAS_GPU_RUNPOD" -eq 1 ]]; then
+            echo "⚠️ [SOLUTION] Deploy pod on another region ⚠️"
+        fi
+    fi
+
+    if [[ "$HAS_CUDA" -eq 1 && "$HAS_COMFYUI" -eq 0 ]]; then
+        echo "❌ ComfyUI is not online"
+        echo "⚠️ [SOLUTION] restart pod ⚠️"
+    fi
+fi
 
 # Keep the container running
 exec sleep infinity

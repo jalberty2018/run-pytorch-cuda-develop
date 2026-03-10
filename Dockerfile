@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM ls250824/pytorch-cuda-ubuntu-develop:08112025 AS base
+FROM ls250824/pytorch-cuda-ubuntu-develop:10032026
 
 # Workspace for installation
 WORKDIR /
@@ -26,11 +26,6 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 RUN --mount=type=cache,target=/root/.cache/pip \
     python -m pip install --root-user-action ignore --no-cache-dir -r requirements.txt
 
-# Install jupyterlab, gradio, hf
-RUN --mount=type=cache,target=/root/.cache/pip \
-    python -m pip install --root-user-action ignore --no-cache-dir \
-    jupyterlab gradio "huggingface_hub[cli]"
-
 # Workspace
 WORKDIR /workspace
 
@@ -41,8 +36,8 @@ ENV HF_HOME=/workspace/cache
 EXPOSE 9000 8888 7860
 
 # Labels
-LABEL org.opencontainers.image.title="CUDA Devel + PyTorch Image" \
-      org.opencontainers.image.description="CUDA 12.8 devel + Ubuntu 22.04 + Python + code-server + Jupyter + Gradio + civitai CLI" \
+LABEL org.opencontainers.image.title="Pytorch CUDA Devel + PyTorch Image" \
+      org.opencontainers.image.description="Pytorch 12.10 CUDA 12.8.1 devel + code-server + Jupyter + Gradio + civitai CLI" \
       org.opencontainers.image.source="https://hub.docker.com/r/ls250824/run-pytorch-cuda-ubuntu-develop" \
       org.opencontainers.image.licenses="MIT"
 

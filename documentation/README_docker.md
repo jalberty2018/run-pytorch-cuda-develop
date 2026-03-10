@@ -31,10 +31,16 @@ docker pull ls250824/run-pytorch-cuda-develop:09102025
 docker pull ls250824/run-pytorch-cuda-develop:05112025
 ```
 
-### Pytorch 2.9 CUDA 12.8
+### Pytorch 2.9 CUDA 12.8.1
 
 ```bash
 docker pull ls250824/run-pytorch-cuda-develop:08112025
+```
+
+### Pytorch 2.10 CUDA 12.8.1
+
+```bash
+docker pull ls250824/run-pytorch-cuda-develop:10032026
 ```
 
 ## Settings
