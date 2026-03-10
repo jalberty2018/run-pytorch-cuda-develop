@@ -1,6 +1,12 @@
 # syntax=docker/dockerfile:1.7
 FROM ls250824/pytorch-cuda-ubuntu-develop:10032026
 
+# Ubuntu 24.x
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
+
+# Cache directory for Hugging Face
+ENV HF_HOME=/workspace/cache
+
 # Workspace for installation
 WORKDIR /
 
@@ -24,13 +30,14 @@ RUN curl -fsSL https://code-server.dev/install.sh | sh
 
 # Development tools, 
 RUN --mount=type=cache,target=/root/.cache/pip \
-    python -m pip install --root-user-action ignore --no-cache-dir -r requirements.txt
+    python -m pip install \
+    --break-system-packages \
+    --root-user-action ignore \
+    --no-cache-dir \
+    -r requirements.txt
 
 # Workspace
 WORKDIR /workspace
-
-# Cache directory for Hugging Face
-ENV HF_HOME=/workspace/cache
 
 # Port for code-server jupyter lab gradio
 EXPOSE 9000 8888 7860
