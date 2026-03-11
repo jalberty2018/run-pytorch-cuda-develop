@@ -4,13 +4,12 @@
 
 - [Github](https://github.com/Dao-AILab/flash-attention)
 
-## RTX 30xx, A40, RTX 40xx, L40S, H100, Hopper, RTX 50xx, Blackwell
+## A40, L40S
 
 ```bash
-export FLASH_ATTENTION_FORCE_BUILD=TRUE
-export FLASH_ATTN_CUDA_ARCHS=“80;90;120”
-export MAX_JOBS=8
-export NVCC_THREADS=4
+export TORCH_CUDA_ARCH_LIST="8.6;8.9"
+export USE_NINJA=1
+export CUDAARCHS="86;89"
 ```
 
 ## Clone
@@ -29,7 +28,7 @@ rm -rf build/ dist/ *.egg-info
 ## Build wheel (100 Gb RAM)
 
 ```bash
-pip wheel . —no-build-isolation -w /tmp/wheels
+MAX_JOBS=8 python -m build --wheel --no-isolation
 ```
 
 ## Install & Check

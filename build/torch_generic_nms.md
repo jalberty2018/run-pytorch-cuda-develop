@@ -11,8 +11,8 @@ cd torch_generic_nms
 ```
 
 ```bash
-export CUDAARCHS=“80;86;89;90;120”
-export CMAKE_ARGS=“-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=$CUDAARCHS”
+export CUDAARCHS="80;86;89;90;120"
+export CMAKE_ARGS="-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=$CUDAARCHS"
 export FORCE_CMAKE=1
 
 MAX_JOBS=16 python -m build --wheel --no-isolation
