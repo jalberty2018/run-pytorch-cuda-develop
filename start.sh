@@ -185,40 +185,40 @@ if [[ "$HAS_GPU" -eq 1 ]]; then
     echo "🎉 Ready to develop 🎉"
     
     if [[ -z "${RUNPOD_POD_ID:-}" ]]; then
-	    echo "⚠️ RUNPOD_POD_ID not set — service URLs unavailable"
-	  else
-	    declare -A SERVICES=(
-	      ["Code-Server"]=9000
-	      ["Jupyter"]=8888
-	    )
-	
-	    # Local health checks (inside the pod)
-	    for service in "${!SERVICES[@]}"; do
-	      port="${SERVICES[$service]}"
-	      url="https://${RUNPOD_POD_ID}-${port}.proxy.runpod.net/"
-	      local_url="http://127.0.0.1:${port}/"
-	
-	      echo "👉 🔗 Service ${service} : ${url}"
-	
-	      # Check service locally (no proxy dependency)
-	      http_code="$(curl -sS -o /dev/null -m 2 --connect-timeout 1 -w "%{http_code}" "$local_url" || true)"
-	
-	      # Treat common “service is up but protected/redirect” codes as UP
-	      if [[ "$http_code" =~ ^(200|301|302|401|403|404)$ ]]; then
-	        echo "✅ ${service} is running (local ${local_url}, HTTP ${http_code})"
-	      else
-	        echo "❌ ${service} not responding yet (local ${local_url}, HTTP ${http_code})"
-	      fi
-	    done
-	  fi
-	fi
-	
+        echo "⚠️ RUNPOD_POD_ID not set — service URLs unavailable"
+    else
+        declare -A SERVICES=(
+          ["Code-Server"]=9000
+          ["Jupyter"]=8888
+        )
+
+        # Local health checks (inside the pod)
+        for service in "${!SERVICES[@]}"; do
+          port="${SERVICES[$service]}"
+          url="https://${RUNPOD_POD_ID}-${port}.proxy.runpod.net/"
+          local_url="http://127.0.0.1:${port}/"
+
+          echo "👉 🔗 Service ${service} : ${url}"
+
+          # Check service locally (no proxy dependency)
+          http_code="$(curl -sS -o /dev/null -m 2 --connect-timeout 1 -w "%{http_code}" "$local_url" || true)"
+
+          # Treat common “service is up but protected/redirect” codes as UP
+          if [[ "$http_code" =~ ^(200|301|302|401|403|404)$ ]]; then
+            echo "✅ ${service} is running (local ${local_url}, HTTP ${http_code})"
+          else
+            echo "❌ ${service} not responding yet (local ${local_url}, HTTP ${http_code})"
+          fi
+        done
+    fi
+
     if [[ -n "$PASSWORD" ]]; then
-		echo "ℹ️ Code-Server login use PASSWORD set as env"
-	else 
-		echo "⚠️ Code-Server password not provided via env (PASSWORD) use generated."
-		cat /root/.config/code-server/config.yaml        
-    fi	
+        echo "ℹ️ Code-Server login use PASSWORD set as env"
+    else 
+        echo "⚠️ Code-Server password not provided via env (PASSWORD) use generated."
+        cat /root/.config/code-server/config.yaml        
+    fi
+
 else
     echo "ℹ️ Running error diagnosis"
 
