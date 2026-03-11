@@ -10,18 +10,6 @@ ENV HF_HOME=/workspace/cache
 # Workspace for installation
 WORKDIR /
 
-# Civitai downloader using environment variable CIVITAI_TOKEN
-COPY --chmod=755 civitai_environment.py /usr/local/bin/civitai
-
-# Build
-COPY --chmod=644 build/ /build
-
-# README
-COPY --chmod=664 /documentation/README.md /README.md
-
-# On Workspace
-COPY --chmod=755 start.sh onworkspace/readme-on-workspace.sh onworkspace/build-on-workspace.sh / 
-
 # Requirements
 COPY --chmod=664 /requirements.txt /requirements.txt
 
@@ -35,6 +23,18 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --root-user-action ignore \
     --no-cache-dir \
     -r requirements.txt
+
+# Civitai downloader using environment variable CIVITAI_TOKEN
+COPY --chmod=755 civitai_environment.py /usr/local/bin/civitai
+
+# Build
+COPY --chmod=644 build/ /build
+
+# README
+COPY --chmod=664 /documentation/README.md /README.md
+
+# On Workspace
+COPY --chmod=755 start.sh onworkspace/readme-on-workspace.sh onworkspace/build-on-workspace.sh / 
 
 # Workspace
 WORKDIR /workspace
