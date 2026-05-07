@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1.7
-FROM ls250824/pytorch-cuda-ubuntu-develop:10032026
+FROM ls250824/pytorch-cuda-ubuntu-develop:07052026
 
 # Ubuntu 24.x
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
@@ -44,7 +44,7 @@ EXPOSE 9000 8888 7860
 
 # Labels
 LABEL org.opencontainers.image.title="Pytorch CUDA Devel + PyTorch Image" \
-      org.opencontainers.image.description="Pytorch 12.10 CUDA 12.8.1 devel + code-server + Jupyter + Gradio + civitai CLI" \
+      org.opencontainers.image.description="Pytorch 2.11 CUDA 12.8.1 devel + code-server + Jupyter + Gradio + civitai CLI" \
       org.opencontainers.image.source="https://hub.docker.com/r/ls250824/run-pytorch-cuda-ubuntu-develop" \
       org.opencontainers.image.licenses="MIT"
 

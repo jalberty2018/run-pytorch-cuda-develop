@@ -19,18 +19,6 @@
 
 ## Available Images
 
-### Pytorch 2.8 CUDA 12.9
-
-```bash
-docker pull ls250824/run-pytorch-cuda-develop:09102025
-```
-
-### Pytorch 2.9 CUDA 13.0
-
-```bash
-docker pull ls250824/run-pytorch-cuda-develop:05112025
-```
-
 ### Pytorch 2.9 CUDA 12.8.1
 
 ```bash
@@ -41,6 +29,12 @@ docker pull ls250824/run-pytorch-cuda-develop:08112025
 
 ```bash
 docker pull ls250824/run-pytorch-cuda-develop:10032026
+```
+
+### Pytorch 2.11 CUDA 12.8.1
+
+```bash
+docker pull ls250824/run-pytorch-cuda-develop:07052026
 ```
 
 ## Settings
