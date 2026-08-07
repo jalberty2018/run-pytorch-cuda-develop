@@ -24,8 +24,9 @@ RUN --mount=type=cache,target=/root/.cache/pip \
     --no-cache-dir \
     -r requirements.txt
 
-# Civitai downloader using environment variable CIVITAI_TOKEN
-COPY --chmod=755 civitai_environment.py /usr/local/bin/civitai
+# Copy and set up Civitai downloader with appropriate permissions
+COPY --chmod=755 civitai_com_environment.py /usr/local/bin/civitai_com
+COPY --chmod=755 civitai_red_environment.py /usr/local/bin/civitai_red
 
 # Build
 COPY --chmod=644 build/ /build

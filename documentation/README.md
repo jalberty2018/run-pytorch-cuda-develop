@@ -42,9 +42,12 @@ hf auth login --token xxxxx
 
 ```bash
 export CIVITAI_TOKEN="xxxxx"
-civitai "<download link>" /workspace/ComfyUI/models/diffusion_models
-civitai "<download link>" /workspace/ComfyUI/models/loras
+civitai_com <VERSION_ID> /workspace/ComfyUI/models/diffusion_models
+civitai_com <VERSION_ID> /workspace/ComfyUI/models/loras
+civitai_red <VERSION_ID> /workspace/ComfyUI/models/diffusion_models
+civitai_red <VERSION_ID> /workspace/ComfyUI/models/loras
 ```
+
 ## Utilities  
 
 ```bash
