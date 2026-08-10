@@ -7,7 +7,7 @@
 ## A40, L40S
 
 ```bash
-export TORCH_CUDA_ARCH_LIST="8.6;8.9"
+export TORCH_CUDA_ARCH_LIST="8.6;8.9;12.0"
 export USE_NINJA=1
 ```
 
