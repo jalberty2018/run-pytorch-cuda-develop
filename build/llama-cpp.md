@@ -291,6 +291,75 @@ llama-bench \
 
 ---
 
+## Optional Multimodal Vision-Language Test
+
+This additional test validates `llama-mtmd-cli`, the CUDA backend and the
+multimodal projector with an image-to-text prompt. It uses a Qwen3.8 27B
+language-model quantization and the matching base-model vision projector.
+The language model requires about 16.8 GB of storage and the F16 projector
+about 928 MB.
+
+Download both GGUF files:
+
+```bash
+mkdir -p /workspace/models
+
+hf download \
+    theresa00l/Qwen3.8-27B-Uncensored-FP8-Q4_K_M-GGUF \
+    qwen3.8-27b-uncensored-fp8-q4_k_m.gguf \
+    --local-dir /workspace/models
+
+hf download \
+    unsloth/Qwen3.8-27B-GGUF \
+    mmproj-F16.gguf \
+    --local-dir /workspace/models
+```
+
+Download the public test image used by the model card:
+
+```bash
+curl -L \
+    https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/p-blog/candy.JPG \
+    -o /workspace/candy.jpg
+```
+
+Run the vision-language test:
+
+```bash
+llama-mtmd-cli \
+    --model /workspace/models/qwen3.8-27b-uncensored-fp8-q4_k_m.gguf \
+    --mmproj /workspace/models/mmproj-F16.gguf \
+    --image /workspace/candy.jpg \
+    --prompt "/no_think Beschrijf deze afbeelding kort in maximaal drie zinnen Nederlands." \
+    --jinja \
+    --image-min-tokens 1024 \
+    --n-gpu-layers 99 \
+    --ctx-size 8192 \
+    --predict 2048 \
+    --temp 0.2
+```
+
+`--predict 2048` is an upper limit; generation stops earlier when the model
+emits its end token. In the verified run, the model identified an open hand,
+five colored objects and turtle-like symbols, then returned a complete Dutch
+answer.
+
+The b10218 experimental multimodal CLI can emit warnings about unused
+`blk.64` tensors and non-consecutive token positions. These warnings did not
+prevent image encoding or a correct response in the verified run. The
+`blk.64` tensors belong to the model's extra next-token-prediction component
+and are ignored by this inference path. The CLI also does not accept the
+`--reasoning` option in this release; `/no_think` is included in the prompt to
+request a concise response. The active Jinja template may still produce a
+short reasoning section before the final answer.
+
+Treat a failed image encode, a projector/model incompatibility error, a CUDA
+backend load failure or an absent final description as a failed test. Because
+the projector is architecture-specific, use it only with a Qwen3.8 27B model
+that retains the base model's vision architecture.
+
+---
+
 ## Package the Native Build
 
 ```bash
