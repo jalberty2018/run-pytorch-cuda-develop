@@ -2,11 +2,11 @@
 
 ## Verified Versions
 
-Last verified: **2026-08-10**
+Last verified: **2026-09-22**
 
-- `llama-cpp-python`: **0.3.34**
+- `llama-cpp-python`: **0.3.35**
 - Vendored `llama.cpp` revision: `e3546c794`
-- CUDA Toolkit: **12.8.1**
+- CUDA Toolkit: **13.0**
 - Target: ComfyUI runtime
 - Platform: Ubuntu 24.04, x86_64
 
@@ -64,11 +64,11 @@ architecture list is set explicitly.
 ## Configuration
 
 ```bash
-export LLAMA_CPP_PYTHON_VERSION="0.3.34"
+export LLAMA_CPP_PYTHON_VERSION="0.3.35"
 export CUDAARCHS="80-real;86-real;89-real;90-real;100a-real;120a-real"
 
 export CMAKE_ARGS="-DGGML_CUDA=ON -DGGML_NATIVE=OFF -DCMAKE_CUDA_ARCHITECTURES=${CUDAARCHS}"
-export CMAKE_BUILD_PARALLEL_LEVEL=16
+export CMAKE_BUILD_PARALLEL_LEVEL=10
 export CMAKE_GENERATOR=Ninja
 ```
 
@@ -265,32 +265,10 @@ offloaded to the GPU. Run this test on each GPU family for which the wheel is
 published; binary inspection proves that code is present, while a runtime test
 also validates the driver and CUDA libraries.
 
----
-
-## Official Pre-built Wheels
-
-As of the verification date, upstream publishes CUDA wheels for `cu118`,
-`cu121`, `cu122`, `cu123`, `cu124`, `cu125`, `cu130` and `cu132`, but not for
-`cu128`. The former `cu124` shortcut is therefore still valid, but it is not an
-exact CUDA 12.8 build and does not replace the native multi-architecture wheel
-described above.
-
-Example:
-
-```bash
-python -m pip install "llama-cpp-python==0.3.34" \
-    --extra-index-url https://abetlen.github.io/llama-cpp-python/whl/cu124
-```
-
-Use an upstream wheel only when its documented CUDA, Python, platform and GPU
-requirements match the target runtime.
-
----
-
 # Short Build Version
 
 ```bash
-export LLAMA_CPP_PYTHON_VERSION="0.3.34"
+export LLAMA_CPP_PYTHON_VERSION="0.3.35"
 export CUDAARCHS="80-real;86-real;89-real;90-real;100a-real;120a-real"
 export CMAKE_ARGS="-DGGML_CUDA=ON -DGGML_NATIVE=OFF -DCMAKE_CUDA_ARCHITECTURES=${CUDAARCHS}"
 export CMAKE_BUILD_PARALLEL_LEVEL=16

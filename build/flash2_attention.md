@@ -4,8 +4,8 @@
 
 - Ubuntu 24.04
 - Python 3.12
-- PyTorch 2.10
-- CUDA 12.8
+- PyTorch 2.12.1
+- CUDA 13.0
 - NVIDIA Ampere — SM86
 - NVIDIA Ada Lovelace — SM89
 - NVIDIA Blackwell — SM120
@@ -20,11 +20,11 @@
 
 ## Supported GPU Architectures
 
-| Architecture | Compute Capability | Native Build Target | Examples |
+| Architecture | Compute Capability | Embedded CUDA Target | Examples |
 |---|---:|---:|---|
-| Ampere | 8.6 | `sm_86` | RTX 3090, RTX A5000, RTX A6000, A40 |
-| Ada Lovelace | 8.9 | `sm_89` | RTX 4090, RTX 6000 Ada, L40, L40S |
-| Blackwell | 12.0 | `sm_120` | RTX 5090, RTX 5080, RTX 5070 Ti |
+| Ampere | 8.6 | `sm_80` (binary compatible) | RTX 3090, RTX A5000, RTX A6000, A40 |
+| Ada Lovelace | 8.9 | `sm_80` (binary compatible) | RTX 4090, RTX 6000 Ada, L40, L40S |
+| Blackwell | 12.0 | `sm_120` | RTX 5090, RTX PRO 6000 Blackwell |
 
 CUDA 12.8 or newer is required for compiling native SM120 Blackwell code.
 
@@ -61,28 +61,38 @@ For an RTX 5090 build machine, the expected compute capability is:
 Compile for Ampere, Ada Lovelace and Blackwell:
 
 ```bash
-export TORCH_CUDA_ARCH_LIST="8.6;8.9;12.0"
-export CUDAARCHS="86;89;120"
-
-export MAX_JOBS=8
+export FLASH_ATTN_CUDA_ARCHS="80;120"
+export FLASH_ATTENTION_FORCE_BUILD=TRUE
 export USE_NINJA=1
+export BUILD_TARGET=cuda
 ```
 
 Verify:
 
 ```bash
-echo "TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}"
-echo "CUDAARCHS=${CUDAARCHS}"
+echo "FLASH_ATTN_CUDA_ARCHS=${FLASH_ATTN_CUDA_ARCHS}"
+echo "FLASH_ATTENTION_FORCE_BUILD=${FLASH_ATTENTION_FORCE_BUILD}"
 ```
 
 Expected:
 
 ```text
-TORCH_CUDA_ARCH_LIST=8.6;8.9;12.0
-CUDAARCHS=86;89;120
+FLASH_ATTN_CUDA_ARCHS=80;120
+FLASH_ATTENTION_FORCE_BUILD=TRUE
 ```
 
-Explicitly specifying the architectures prevents the wheel from being limited to the GPU present in the build machine.
+FlashAttention's `setup.py` uses `FLASH_ATTN_CUDA_ARCHS` to select its CUDA
+kernels; `TORCH_CUDA_ARCH_LIST` and `CUDAARCHS` do not control this selection.
+SM80 cubins are binary compatible with the SM86 Ampere and SM89 Ada GPUs
+listed above. SM120 covers the listed Blackwell GPUs. Separate SM86/SM89
+cubins are not expected from this configuration.
+
+`FLASH_ATTENTION_FORCE_BUILD=TRUE` forces local compilation instead of using
+a prebuilt wheel. When changing these settings, run the Clean step before
+rebuilding, then extract the new wheel again before verification.
+
+See [FlashAttention setup.py](https://github.com/Dao-AILab/flash-attention/blob/main/setup.py)
+and [NVIDIA Ada compatibility](https://docs.nvidia.com/cuda/ada-compatibility-guide/).
 
 ---
 
@@ -109,14 +119,21 @@ ninja --version
 
 ## Clone
 
+Use a shallow clone of the main repository and initialize only NVIDIA CUTLASS.
+The AMD/ROCm submodules (`csrc/composable_kernel` and `third_party/aiter`) are
+not needed for this CUDA build. `BUILD_TARGET=cuda` also selects the CUDA path
+in `setup.py`, which initializes CUTLASS only.
+
 ```bash
 cd /workspace
 
 git clone \
-    https://github.com/Dao-AILab/flash-attention.git \
-    --recursive
+    --depth 1 \
+    --single-branch \
+    https://github.com/Dao-AILab/flash-attention.git
 
 cd flash-attention
+git submodule update --init --depth 1 -- csrc/cutlass
 ```
 
 Record the exact revision:
@@ -148,18 +165,16 @@ rm -rf \
 
 ## Build Wheel
 
-FlashAttention compilation can consume a large amount of RAM.
-
-For a build machine with approximately 100 GB RAM:
+For a build machine with approximately 120 GB RAM:
 
 ```bash
 MAX_JOBS=8 python -m build --wheel --no-isolation
 ```
 
-If memory usage becomes excessive, reduce parallelism:
+For a build machine with approximately 85 GB RAM:
 
 ```bash
-MAX_JOBS=3 python -m build --wheel --no-isolation
+MAX_JOBS=4 python -m build --wheel --no-isolation
 ```
 
 The resulting wheel is created in:
@@ -218,36 +233,56 @@ find /tmp/flash-wheel -type f -name '*.so' -print
 
 ## Verify Native CUDA Architectures
 
-Check all compiled extensions for the requested architectures:
+Use Bash to list embedded cubins once per FlashAttention CUDA extension.
+This avoids the expensive kernel disassembly performed by `--dump-sass`.
+The check matches actual SM80 and SM120 cubin entries, reports missing
+architectures, and returns a nonzero status on failure. Tool errors remain visible.
 
 ```bash
-for so in $(find /tmp/flash-wheel -type f -name '*.so'); do
-    echo
-    echo "===== $(basename "$so") ====="
+(
+    mapfile -d '' -t extensions < <(find /tmp/flash-wheel -type f -name 'flash_attn_2_cuda*.so' -print0)
+    if (( ${#extensions[@]} == 0 )); then
+        echo "ERROR: FlashAttention CUDA extension not found"
+        exit 1
+    fi
 
-    for arch in sm_86 sm_89 sm_120; do
-        if cuobjdump --dump-sass \
-            --gpu-architecture "$arch" \
-            "$so" \
-            >/dev/null 2>&1; then
-            echo "  ✅ $arch"
-        else
-            echo "  ❌ $arch"
+    status=0
+    for so in "${extensions[@]}"; do
+        echo "===== $(basename "$so") ====="
+        if ! elf_list=$(cuobjdump --list-elf "$so"); then
+            echo "ERROR: cuobjdump failed"
+            exit 1
         fi
+        echo "Embedded architectures:"
+        printf '%s\n' "$elf_list" | grep -oE 'sm_[0-9]+[af]?' | sort -u
+
+        for arch in sm_80 sm_120; do
+            if grep -Eq "[.]${arch}[.]cubin([[:space:]]|$)" <<< "$elf_list"; then
+                echo "  OK $arch"
+            else
+                echo "  MISSING $arch"
+                status=1
+            fi
+        done
     done
-done
+    exit "$status"
+)
 ```
 
 The intended result is:
 
 ```text
 ===== flash_attn_2_cuda.cpython-312-x86_64-linux-gnu.so =====
-  ✅ sm_86
-  ✅ sm_89
-  ✅ sm_120
+Embedded architectures:
+sm_120
+sm_80
+  OK sm_80
+  OK sm_120
 ```
 
-This is the definitive verification that native CUDA code for all three architectures is present in the wheel.
+This confirms embedded SM80 and SM120 code, not successful GPU execution.
+Additional architectures in an older wheel are allowed. Run the Functional
+Test on each target GPU family to validate runtime compatibility.
 
 ---
 
@@ -276,14 +311,14 @@ For this build, keep the runtime as close as possible to:
 ```text
 Ubuntu 24.04
 Python 3.12
-PyTorch 2.10.x
-PyTorch CUDA 12.8 / cu128
+PyTorch 2.11.1
+PyTorch CUDA 13.0 / cu130
 x86_64
 ```
 
 ---
 
-## Install in ComfyUI Runtime
+## Install Runtime
 
 ```bash
 pip install \
@@ -376,14 +411,14 @@ rather than SageAttention's HND test shape:
 
 ---
 
-## ComfyUI Runtime Validation
+## Runtime Validation
 
-The same wheel is intended to contain native CUDA targets for:
+The same wheel is intended to support these GPUs using the embedded targets:
 
 ```text
-RTX 3090 / A40 / RTX A6000  -> SM86  -> Ampere
-RTX 4090 / L40S             -> SM89  -> Ada Lovelace
-RTX 5090                     -> SM120 -> Blackwell
+RTX 3090 / A40 / RTX A6000        -> SM86 GPU  -> SM80 cubins
+RTX 4090 / L40S / RTX 6000 Ada    -> SM89 GPU  -> SM80 cubins
+RTX 5090 / RTX PRO 6000 Blackwell -> SM120 GPU -> SM120 cubins
 ```
 
 Test the installed wheel on each target GPU class where possible.
@@ -393,27 +428,29 @@ Test the installed wheel on each target GPU class where possible.
 # Short Build Version
 
 ```bash
-export TORCH_CUDA_ARCH_LIST="8.6;8.9;12.0"
-export CUDAARCHS="86;89;120"
+export FLASH_ATTN_CUDA_ARCHS="80;120"
+export FLASH_ATTENTION_FORCE_BUILD=TRUE
 
-export MAX_JOBS=8
 export USE_NINJA=1
+export BUILD_TARGET=cuda
 
 cd /workspace
 
 git clone \
-    https://github.com/Dao-AILab/flash-attention.git \
-    --recursive
+    --depth 1 \
+    --single-branch \
+    https://github.com/Dao-AILab/flash-attention.git
 
 cd flash-attention
+git submodule update --init --depth 1 -- csrc/cutlass
 
 rm -rf build/ dist/ *.egg-info
 
 python -m pip install --upgrade pip
 pip install -U build ninja packaging wheel setuptools
 
-echo "TORCH_CUDA_ARCH_LIST=${TORCH_CUDA_ARCH_LIST}"
-echo "CUDAARCHS=${CUDAARCHS}"
+echo "FLASH_ATTN_CUDA_ARCHS=${FLASH_ATTN_CUDA_ARCHS}"
+echo "FLASH_ATTENTION_FORCE_BUILD=${FLASH_ATTENTION_FORCE_BUILD}"
 
 python -m build --wheel --no-isolation
 ```
@@ -429,49 +466,63 @@ unzip -q \
     dist/flash_attn-*.whl \
     -d /tmp/flash-wheel
 
-for so in $(find /tmp/flash-wheel -type f -name '*.so'); do
-    echo
-    echo "===== $(basename "$so") ====="
+(
+    mapfile -d '' -t extensions < <(find /tmp/flash-wheel -type f -name 'flash_attn_2_cuda*.so' -print0)
+    if (( ${#extensions[@]} == 0 )); then
+        echo "ERROR: FlashAttention CUDA extension not found"
+        exit 1
+    fi
 
-    for arch in sm_86 sm_89 sm_120; do
-        if cuobjdump --dump-sass \
-            --gpu-architecture "$arch" \
-            "$so" \
-            >/dev/null 2>&1; then
-            echo "  ✅ $arch"
-        else
-            echo "  ❌ $arch"
+    status=0
+    for so in "${extensions[@]}"; do
+        echo "===== $(basename "$so") ====="
+        if ! elf_list=$(cuobjdump --list-elf "$so"); then
+            echo "ERROR: cuobjdump failed"
+            exit 1
         fi
+        echo "Embedded architectures:"
+        printf '%s\n' "$elf_list" | grep -oE 'sm_[0-9]+[af]?' | sort -u
+
+        for arch in sm_80 sm_120; do
+            if grep -Eq "[.]${arch}[.]cubin([[:space:]]|$)" <<< "$elf_list"; then
+                echo "  OK $arch"
+            else
+                echo "  MISSING $arch"
+                status=1
+            fi
+        done
     done
-done
+    exit "$status"
+)
 ```
 
 Expected:
 
 ```text
 ===== flash_attn_2_cuda.cpython-312-x86_64-linux-gnu.so =====
-  ✅ sm_86
-  ✅ sm_89
-  ✅ sm_120
+Embedded architectures:
+sm_120
+sm_80
+  OK sm_80
+  OK sm_120
 ```
 
 ---
 
 # Result
 
-One FlashAttention 2 wheel intended to contain native CUDA support for:
+One FlashAttention 2 wheel with embedded CUDA code for:
 
 ```text
-SM86  -> Ampere
-SM89  -> Ada Lovelace
-SM120 -> Blackwell
+SM80  -> Ampere SM86 and Ada SM89 through binary compatibility
+SM120 -> Blackwell SM120
 ```
 
 Architecture configuration:
 
 ```bash
-export TORCH_CUDA_ARCH_LIST="8.6;8.9;12.0"
-export CUDAARCHS="86;89;120"
+export FLASH_ATTN_CUDA_ARCHS="80;120"
+export FLASH_ATTENTION_FORCE_BUILD=TRUE
 ```
 
 After compilation, verify the actual native architectures with `cuobjdump` before deploying the wheel to the ComfyUI runtime.
