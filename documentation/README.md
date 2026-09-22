@@ -12,21 +12,7 @@
 - [Pytorch.org](https://pytorch.org)
 - [Triton](https://triton-lang.org/main/index.html)
 
-## 7z
-
-### Add directory to encrypted archive
-
-```bash
-7z a output.7z /workspace/output/
-```
-
-### Extract directory from archive
-
-```bash
-7z x x.7z
-```
-
-#### **Huggingface**  
+### **Huggingface**  
 
 ```bash
 export HF_TOKEN="xxxxx"
@@ -38,7 +24,7 @@ hf upload model /workspace/model.safetensors
 hf auth login --token xxxxx
 ```
 
-#### **CivitAI**  
+## **CivitAI**  
 
 ```bash
 export CIVITAI_TOKEN="xxxxx"
@@ -48,18 +34,39 @@ civitai_red <VERSION_ID> /workspace/ComfyUI/models/diffusion_models
 civitai_red <VERSION_ID> /workspace/ComfyUI/models/loras
 ```
 
+## 7z Compression  
+
+### **Encrypt & Archive Output**  
+
+```bash
+7z a -p -mhe=on /workspace/output/output-minimax-x.7z /workspace/ComfyUI/output/
+7z a -p -mhe=on -v800m /workspace/output/output-image-x.7z /workspace/ComfyUI/output/
+```
+
+### **Extract Archive**  
+
+```bash
+7z x x.7z
+```
+
+## Clean up  
+
+```bash
+rm -rf /workspace/output/ /workspace/input/ /workspace/ComfyUI/output/ /workspace/ComfyUI/input/ /workspace/ComfyUI/models/loras/
+```
+
 ## Utilities  
 
 ```bash
-nvtop
-htop
-mc
-nano
-tmux
-c++
-nvcc
-python
-pip
-ncdu
-unzip
+nvtop      # GPU Monitoring
+nvidia-smi # GPU information
+htop       # Process Monitoring  
+mc         # Midnight Commander (file manager)  
+nano       # Text Editor
+ncdu       # Clean Up
+unzip      # uncompress
+age        # public/private key encryption
+7z         # Archiving
+runpodctl  # runpod pod management
 ```
+

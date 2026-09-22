@@ -1,13 +1,16 @@
 # Build llama.cpp with CUDA — Ampere to Blackwell
 
-## Verified Versions
+## Build Versions
 
-Last checked: **2026-08-21**
+Configuration updated: **2026-09-22**
 
 - `llama.cpp`: **b10218** (`de69995`)
-- CUDA Toolkit: **12.8.1**
+- CUDA Toolkit: **13.0.x**
 - Build image: `run-pytorch-cuda-develop`
 - Platform: Ubuntu 24.04, x86_64
+
+The CUDA 13.0.x build must be validated using the checks below. Record the
+exact toolkit patch version reported by `nvcc --version` with the build.
 
 The release tag is pinned so the build can be reproduced. Update
 `LLAMA_CPP_TAG` deliberately after checking the upstream release notes and
@@ -28,7 +31,7 @@ or install a Python wheel.
 ## Supported GPU Architectures
 
 This configuration builds one set of binaries with native CUDA code for the
-principal Ampere, Ada, Hopper and Blackwell targets supported by CUDA 12.8:
+principal Ampere, Ada, Hopper and Blackwell targets used by this CUDA 13.0.x build:
 
 | Architecture | Compute Capability | Native Build Target | Examples |
 |---|---:|---:|---|
@@ -41,8 +44,7 @@ principal Ampere, Ada, Hopper and Blackwell targets supported by CUDA 12.8:
 
 The `a` suffix is intentional for architecture-specific Blackwell code. The
 `-real` suffix asks CMake to emit native SASS only, rather than both SASS and
-PTX for every target. CUDA 12.8 or newer is required for native Blackwell
-compilation.
+PTX for every target. This guide uses CUDA Toolkit 13.0.x for compilation.
 
 GPUs with another compute capability require an additional target or a
 suitable `-virtual` PTX target. Removing unused targets reduces build time and
@@ -65,6 +67,10 @@ nvidia-smi --query-gpu=name,compute_cap --format=csv
 The image must contain Git, CMake, Ninja, a supported C/C++ compiler, `nvcc`
 and the CUDA development libraries. A GPU is not required during compilation
 because the architecture list is explicit.
+
+Confirm that `nvcc --version` reports CUDA release 13.0 and that CMake selects
+the same toolkit. The CUDA version shown by `nvidia-smi` describes driver
+compatibility, not the installed toolkit version.
 
 If CMake or Ninja is missing, install them in the build image:
 
@@ -365,13 +371,13 @@ that retains the base model's vision architecture.
 ```bash
 tar \
     -C "${LLAMA_CPP_PREFIX}" \
-    -czf "/workspace/llama-cpp-${LLAMA_CPP_TAG}-cu128-linux-x86_64.tar.gz" \
+    -czf "/workspace/llama-cpp-${LLAMA_CPP_TAG}-cu130-linux-x86_64.tar.gz" \
     .
 
-sha256sum "/workspace/llama-cpp-${LLAMA_CPP_TAG}-cu128-linux-x86_64.tar.gz"
+sha256sum "/workspace/llama-cpp-${LLAMA_CPP_TAG}-cu130-linux-x86_64.tar.gz"
 ```
 
-The runtime needs a compatible NVIDIA driver and the CUDA runtime libraries,
+The runtime needs a CUDA 13.0-compatible NVIDIA driver and CUDA 13.0 runtime libraries,
 but not Git, CMake, Ninja, CUDA headers, `nvcc` or a C/C++ compiler.
 
 ---

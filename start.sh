@@ -78,12 +78,14 @@ print(passwd(os.environ['JUPYTERLAB_PASS']))
     # Ensure config directory exists
     mkdir -p ~/.jupyter
 
-    # Remove any existing password setting
-    sed -i '/^c.ServerApp.password/d' "$CONFIG_PATH" 2>/dev/null || true
+    # Remove existing legacy and current password settings
+    sed -i \
+        -e '/^c\.ServerApp\.password[[:space:]]*=/d' \
+        -e '/^c\.PasswordIdentityProvider\.hashed_password[[:space:]]*=/d' \
+        "$CONFIG_PATH" 2>/dev/null || true
 
     # Append the new hashed password
-	# echo "c.PasswordIdentityProvider.hashed_password = u'$HASHED_PASSWORD'" >> "$CONFIG_PATH"
-    echo "c.ServerApp.password = u'$HASHED_PASSWORD'" >> "$CONFIG_PATH"
+    echo "c.PasswordIdentityProvider.hashed_password = '$HASHED_PASSWORD'" >> "$CONFIG_PATH"
     echo "[INFO] Jupyter Server password set in $CONFIG_PATH"
 
     # Start JupyterLab
