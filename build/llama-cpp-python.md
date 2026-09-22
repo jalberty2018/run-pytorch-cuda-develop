@@ -235,7 +235,7 @@ info = llama_cpp.llama_cpp.llama_print_system_info().decode()
 print("llama-cpp-python:", llama_cpp.__version__)
 print(info)
 
-assert llama_cpp.__version__ == "0.3.34"
+assert llama_cpp.__version__ == "0.3.35"
 assert "CUDA" in info, "llama-cpp-python was not built with the CUDA backend"
 PY
 ```

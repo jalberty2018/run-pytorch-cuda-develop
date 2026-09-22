@@ -3,8 +3,8 @@
 ## Target Environment
 
 - Ubuntu 24.04
-- PyTorch 2.10
-- CUDA 12.8
+- PyTorch 2.12
+- CUDA 13.0
 - NVIDIA Ampere — SM86
 - NVIDIA Ada Lovelace — SM89
 - NVIDIA Blackwell — SM120 / SM120a
@@ -33,7 +33,7 @@ SageAttention's `setup.py` translates:
 12.0 -> compute_120a -> sm_120a
 ```
 
-CUDA 12.8 or newer is required to compile the Blackwell 12.0 target.
+CUDA 13.0 or newer is required to compile the Blackwell 12.0 target.
 
 ---
 
@@ -333,8 +333,8 @@ For this build, the runtime should match the build environment as closely as pos
 ```text
 Ubuntu 24.04
 Python 3.12
-PyTorch 2.10.x
-PyTorch CUDA 12.8 / cu128
+PyTorch 2.12
+PyTorch CUDA 1.3 / cu13
 x86_64
 ```
 
@@ -373,7 +373,6 @@ if torch.cuda.is_available():
     print("GPU:", torch.cuda.get_device_name())
     print("Compute capability:", torch.cuda.get_device_capability())
 
-print("SageAttention:", sageattention.__file__)
 PY
 ```
 
@@ -382,83 +381,13 @@ PY
 ## Functional Test
 
 ```bash
-python - <<'PY'
-import torch
-from sageattention import sageattn
-
-q = torch.randn(
-    2,
-    4,
-    128,
-    64,
-    device="cuda",
-    dtype=torch.float16,
-)
-
-k = torch.randn_like(q)
-v = torch.randn_like(q)
-
-output = sageattn(
-    q,
-    k,
-    v,
-    tensor_layout="HND",
-    is_causal=False,
-)
-
-torch.cuda.synchronize()
-
-print("GPU:", torch.cuda.get_device_name())
-print("Compute capability:", torch.cuda.get_device_capability())
-print("Output:", output.shape)
-print("dtype:", output.dtype)
+python /workspace/build/test_sage.py
 ```
 
 Expected:
 
 ```text
 Output: torch.Size([2, 4, 128, 64])
-```
-
----
-
-## ComfyUI Runtime Validation
-
-The same wheel contains native CUDA targets for all three GPU generations:
-
-```text
-RTX 3090 / A40 / RTX A6000  -> SM86   -> Ampere
-RTX 4090 / L40S             -> SM89   -> Ada Lovelace
-RTX 5090                     -> SM120a -> Blackwell
-```
-
-Test the installed wheel on the target GPU:
-
-```bash
-python - <<'PY'
-import torch
-from sageattention import sageattn
-
-print("PyTorch:", torch.__version__)
-print("CUDA runtime:", torch.version.cuda)
-print("GPU:", torch.cuda.get_device_name())
-print("SM:", torch.cuda.get_device_capability())
-
-q = torch.randn(
-    1,
-    8,
-    1024,
-    64,
-    device="cuda",
-    dtype=torch.bfloat16,
-)
-
-o = sageattn(q, q, q)
-
-torch.cuda.synchronize()
-
-print("SageAttention OK:", o.shape)
-PY
 ```
 
 ---
